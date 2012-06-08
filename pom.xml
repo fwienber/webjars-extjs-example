@@ -9,7 +9,7 @@
 
   <name>webjars-extjs-example</name>
   <description>
-    An example of using Ext JS from Maven with Jangaroo's WebJars.
+    An example of building an running an Ext JS Web app via Maven using Jangaroo's WebJars.
     * start local Web server with 'mvn jetty:start'
     * open browser at http://localhost:8080
     * be amazed
@@ -32,4 +32,60 @@
       <version>3.4.0</version>
     </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <!--
+        Build with "mvn -Pwebapp package" to unpack a static Web app containing all needed files into
+        target/dependency/META-INF/resources/
+        You can then open the file target/dependency/META-INF/resources/index.html in the browser
+        and use the Web application without a Web server like Jetty.
+      -->
+      <id>webapp</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>2.0</version>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>unpack-dependencies</goal>
+                </goals>
+                <configuration>
+                  <includeTypes>jar</includeTypes>
+                  <includeScope>runtime</includeScope>
+                  <includes>META-INF/resources/**</includes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+    
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.7</version>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <copy toDir="${build.directory}/dependency/META-INF/resources">
+                      <fileset dir="${basedir}/src/main/webapp" excludes="WEB-INF/**"/>
+                    </copy>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
 </project>
